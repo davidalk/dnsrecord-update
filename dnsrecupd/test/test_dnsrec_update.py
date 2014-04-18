@@ -50,18 +50,40 @@ class TestDnsRecUpdate(unittest.TestCase):
         res = namecom_interact.logout()
         self.assertEqual(100, res['result']['code'], 'logout success status returned')
 
-    def test_domains_list_returns_results(self):
+    def test_list_domains_returns_results(self):
         namecom_interact = dnsrec_update.NameComInterract(self.config)
         namecom_interact.login()
         domains_list = namecom_interact.list_domains()
+        self.assertIsNotNone(domains_list['al-kanani.com'], 'domain is populated')
+        print('Domain list:')
+        print(domains_list)
         namecom_interact.logout()
 
-    @unittest.skip
-    def test_list_dns(self):
+    def test_create_list_and_remove_dns_records(self):
         namecom_interact = dnsrec_update.NameComInterract(self.config)
         namecom_interact.login()
-        dns_list = namecom_interact.list_dns()
+        response = namecom_interact.create_dns_record(TestDnsRecUpdate.get_dns_record())
+        dns_id = response['record_id']
+        dns_record = namecom_interact.list_dns_records().pop(0)
+        print('created dns record:')
+        print(dns_record)
+        self.assertEqual(str(dns_id), dns_record['record_id'], 'created dns record returns')
+        namecom_interact.delete_dns_record(dns_record['record_id'])
         namecom_interact.logout()
+
+    @staticmethod
+    def get_domain():
+        domain = {'domain_name': 'al-kanani.com', 'period': 1}
+        return domain
+
+    @staticmethod
+    def get_dns_record():
+        dns_record = {'hostname': 'home',
+                      'type': 'A',
+                      'content': '10.10.10.10',
+                      'ttl': 300}
+        return dns_record
+
 
 if __name__ == '__main__':
     unittest.main()

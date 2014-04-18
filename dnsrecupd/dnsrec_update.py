@@ -6,7 +6,35 @@ import requests
 import json
 
 def main():
-    pass
+    config = load_settings(os.path.dirname(__file__))
+    try:
+        update_dns_with_ip(config)
+    except Exception as ex:
+        send_error(ex, config)
+
+def update_dns_with_ip(config):
+    nameint = NameComInterract(config)
+    response = nameint.api_hello()
+    ip_add = response['client_ip']
+    new_home_record = {'hostname': 'home',
+                               'type': 'A',
+                               'content': ip_add,
+                               'ttl': 300}
+    nameint.login()
+    dns_records = nameint.list_dns_records()
+    current_home_record = (record for record in dns_records if record['name'] == 'home.alkanani.co.uk' and record['type'] ==  'A').next()
+    if current_home_record['name'] == 'home.alkanani.co.uk':
+        if current_home_record['content'] != ip_add:
+            print('Updating ip address to: ' + str(ip_add))
+            nameint.delete_dns_record(current_home_record['record_id'])
+            nameint.create_dns_record(new_home_record)
+        else:
+            print('No action, ip up to date')
+    else:
+        print('Adding new dns record:')
+        print(new_home_record)
+        nameint.create_dns_record(new_home_record)
+
 
 def load_settings(directory):
     config = configparser.ConfigParser()
@@ -58,17 +86,39 @@ class NameComInterract:
         print ('Logout message:' + json_res['result']['message'])
         return json_res
 
+    def create_domain(self, domain):
+        create_domain_url = self.config['apiurl'] + '/api/domain/create'
+        response = requests.post(create_domain_url, data=json.dumps(domain), headers=self.session_token)
+        json_res = NameComInterract.process_response(response)
+        return json_res
+
     def list_domains(self):
         list_domain_url = self.config['apiurl'] + '/api/domain/list'
         response = requests.get(list_domain_url, headers=self.session_token)
         json_res = NameComInterract.process_response(response)
         return json_res['domains']
 
-    def list_dns(self):
+    def list_dns_records(self):
         list_dns_url = self.config['apiurl'] + '/api/dns/list/' + self.config['domain']
         response = requests.get(list_dns_url, headers=self.session_token)
         json_res = NameComInterract.process_response(response)
         return json_res['records']
+
+    def create_dns_record(self, dns):
+        print('Creating dns record: ')
+        print(dns)
+        create_dns_url = self.config['apiurl'] + '/api/dns/create/' + self.config['domain']
+        response = requests.post(create_dns_url, data=json.dumps(dns), headers=self.session_token)
+        json_res = NameComInterract.process_response(response)
+        return json_res
+
+    def delete_dns_record(self, record_id):
+        print('Deleting dns record_id: ' + str(record_id))
+        payload = {'record_id':  record_id}
+        delete_dns_url = self.config['apiurl'] + '/api/dns/delete/' + self.config['domain']
+        response = requests.post(delete_dns_url, data=json.dumps(payload), headers=self.session_token)
+        json_res = NameComInterract.process_response(response)
+        return json_res
 
     @staticmethod
     def process_response(response):
