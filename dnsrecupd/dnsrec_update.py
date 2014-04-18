@@ -22,18 +22,20 @@ def update_dns_with_ip(config):
                                'ttl': 300}
     nameint.login()
     dns_records = nameint.list_dns_records()
-    current_home_record = (record for record in dns_records if record['name'] == 'home.alkanani.co.uk' and record['type'] ==  'A').next()
-    if current_home_record['name'] == 'home.alkanani.co.uk':
+    current_home_record = next((record for record in dns_records if record['name'] == 'home.alkanani.co.uk' and record['type'] ==  'A'), None)
+    return_value = current_home_record
+    if current_home_record != None:
         if current_home_record['content'] != ip_add:
             print('Updating ip address to: ' + str(ip_add))
             nameint.delete_dns_record(current_home_record['record_id'])
-            nameint.create_dns_record(new_home_record)
+            return_value = nameint.create_dns_record(new_home_record)
         else:
             print('No action, ip up to date')
     else:
         print('Adding new dns record:')
         print(new_home_record)
-        nameint.create_dns_record(new_home_record)
+        return_value = nameint.create_dns_record(new_home_record)
+    return return_value
 
 
 def load_settings(directory):

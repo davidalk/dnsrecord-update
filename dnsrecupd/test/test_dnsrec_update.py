@@ -59,31 +59,20 @@ class TestDnsRecUpdate(unittest.TestCase):
         print(domains_list)
         namecom_interact.logout()
 
-    def test_create_list_and_remove_dns_records(self):
+    def test_update_dns_with_ip(self):
+        return_value = dnsrec_update.update_dns_with_ip(self.config)
+        self.assertIsNotNone(return_value, 'update_dns_with_ip returns value')
+        #Remove entry
         namecom_interact = dnsrec_update.NameComInterract(self.config)
         namecom_interact.login()
-        response = namecom_interact.create_dns_record(TestDnsRecUpdate.get_dns_record())
-        dns_id = response['record_id']
-        dns_record = namecom_interact.list_dns_records().pop(0)
-        print('created dns record:')
-        print(dns_record)
-        self.assertEqual(str(dns_id), dns_record['record_id'], 'created dns record returns')
-        namecom_interact.delete_dns_record(dns_record['record_id'])
+        record_id = namecom_interact.list_dns_records().pop(0)
+        namecom_interact.delete_dns_record(record_id['record_id'])
         namecom_interact.logout()
 
     @staticmethod
     def get_domain():
         domain = {'domain_name': 'al-kanani.com', 'period': 1}
         return domain
-
-    @staticmethod
-    def get_dns_record():
-        dns_record = {'hostname': 'home',
-                      'type': 'A',
-                      'content': '10.10.10.10',
-                      'ttl': 300}
-        return dns_record
-
 
 if __name__ == '__main__':
     unittest.main()
