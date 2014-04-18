@@ -35,7 +35,7 @@ class NameComInterract:
 
     def __init__(self, config):
         self.config = config
-        self.session_token = None
+        self.session_token = {}
 
     def api_hello(self):
         hello_url = self.config['apiurl'] + '/api/hello'
@@ -47,11 +47,23 @@ class NameComInterract:
         payload = {'username': self.config['apiuser'], 'api_token': self.config['apitoken']}
         res = requests.post(login_url, data=json.dumps(payload))
         json_res = res.json()
-        if json_res['result']['code'] != 100:
-            raise NameComInterractionError('Login failed: ' + json_res['result']['message'])
-        self.session_token = json_res['session_token']
+        NameComInterract.check_response(json_res)
+        self.session_token['Api-Session-Token'] = json_res['session_token']
         print('Login message: ' + json_res['result']['message'])
         return json_res
+
+    def logout(self):
+        logout_url = self.config['apiurl'] + '/api/logout'
+        res = requests.get(logout_url, headers=self.session_token)
+        json_res = res.json()
+        NameComInterract.check_response(json_res)
+        print ('Logout message:' + json_res['result']['message'])
+        return json_res
+
+    @staticmethod
+    def check_response(json_res):
+        if json_res['result']['code'] != 100:
+            raise NameComInterractionError('Login failed: ' + json_res['result']['message'])
 
 
 class NameComInterractionError(Exception):

@@ -30,7 +30,7 @@ class TestDnsRecUpdate(unittest.TestCase):
     def test_api_hello_returns(self):
         namecom_interact = dnsrec_update.NameComInterract(self.config)
         hello = namecom_interact.api_hello()
-        self.assertEqual(100, hello['result']['code'], 'api hello returns corrctly')
+        self.assertEqual(100, hello['result']['code'], 'api hello returns correctly')
         self.assertEqual('Name.com API Test Server', hello['service'])
 
     def test_login_successful(self):
@@ -43,6 +43,14 @@ class TestDnsRecUpdate(unittest.TestCase):
         namecom_interact = dnsrec_update.NameComInterract(bad_config)
         with self.assertRaises(NameComInterractionError):
             namecom_interact.login()
+
+    def test_logout(self):
+        namecom_interact = dnsrec_update.NameComInterract(self.config)
+        namecom_interact.login()
+        res = namecom_interact.logout()
+        self.assertEqual(100, res['result']['code'], 'lgout success status returned')
+
+
 
 
 if __name__ == '__main__':
