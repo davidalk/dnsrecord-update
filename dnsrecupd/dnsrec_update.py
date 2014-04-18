@@ -1,4 +1,4 @@
-import smtplib
+from smtplib import SMTP
 from email.mime.text import MIMEText
 import configparser
 import os
@@ -19,9 +19,9 @@ def send_error(ex, config):
     msg = MIMEText(body)
     msg['Subject'] = 'DYNDNS Update Error'
     msg['From'] = 'donotreply'
-    msg['To'] = config['Email']
+    msg['To'] = config['email']
 
-    server = smtplib.SMTP(config['smtp'])
+    server = SMTP(config['smtp'])
     server.ehlo_or_helo_if_needed()
     server.starttls()
     server.login(config['smtpuser'], config['smtppassword'])
