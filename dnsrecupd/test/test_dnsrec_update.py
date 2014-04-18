@@ -44,14 +44,24 @@ class TestDnsRecUpdate(unittest.TestCase):
         with self.assertRaises(NameComInterractionError):
             namecom_interact.login()
 
-    def test_logout(self):
+    def test_logout_successful(self):
         namecom_interact = dnsrec_update.NameComInterract(self.config)
         namecom_interact.login()
         res = namecom_interact.logout()
-        self.assertEqual(100, res['result']['code'], 'lgout success status returned')
+        self.assertEqual(100, res['result']['code'], 'logout success status returned')
 
+    def test_domains_list_returns_results(self):
+        namecom_interact = dnsrec_update.NameComInterract(self.config)
+        namecom_interact.login()
+        domains_list = namecom_interact.list_domains()
+        namecom_interact.logout()
 
-
+    @unittest.skip
+    def test_list_dns(self):
+        namecom_interact = dnsrec_update.NameComInterract(self.config)
+        namecom_interact.login()
+        dns_list = namecom_interact.list_dns()
+        namecom_interact.logout()
 
 if __name__ == '__main__':
     unittest.main()

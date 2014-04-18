@@ -39,31 +39,43 @@ class NameComInterract:
 
     def api_hello(self):
         hello_url = self.config['apiurl'] + '/api/hello'
-        res = requests.get(hello_url)
-        return res.json()
+        response = requests.get(hello_url)
+        return response.json()
 
     def login(self):
         login_url = self.config['apiurl'] + '/api/login'
         payload = {'username': self.config['apiuser'], 'api_token': self.config['apitoken']}
-        res = requests.post(login_url, data=json.dumps(payload))
-        json_res = res.json()
-        NameComInterract.check_response(json_res)
+        response = requests.post(login_url, data=json.dumps(payload))
+        json_res = NameComInterract.process_response(response)
         self.session_token['Api-Session-Token'] = json_res['session_token']
         print('Login message: ' + json_res['result']['message'])
         return json_res
 
     def logout(self):
         logout_url = self.config['apiurl'] + '/api/logout'
-        res = requests.get(logout_url, headers=self.session_token)
-        json_res = res.json()
-        NameComInterract.check_response(json_res)
+        response = requests.get(logout_url, headers=self.session_token)
+        json_res = NameComInterract.process_response(response)
         print ('Logout message:' + json_res['result']['message'])
         return json_res
 
+    def list_domains(self):
+        list_domain_url = self.config['apiurl'] + '/api/domain/list'
+        response = requests.get(list_domain_url, headers=self.session_token)
+        json_res = NameComInterract.process_response(response)
+        return json_res['domains']
+
+    def list_dns(self):
+        list_dns_url = self.config['apiurl'] + '/api/dns/list/' + self.config['domain']
+        response = requests.get(list_dns_url, headers=self.session_token)
+        json_res = NameComInterract.process_response(response)
+        return json_res['records']
+
     @staticmethod
-    def check_response(json_res):
+    def process_response(response):
+        json_res = response.json()
         if json_res['result']['code'] != 100:
-            raise NameComInterractionError('Login failed: ' + json_res['result']['message'])
+            raise NameComInterractionError('\nError Code: ' + str(json_res['result']['code']) + '\nError Message: ' + json_res['result']['message'])
+        return json_res
 
 
 class NameComInterractionError(Exception):
