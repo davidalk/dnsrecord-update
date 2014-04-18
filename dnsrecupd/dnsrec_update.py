@@ -21,10 +21,10 @@ def send_error(ex, config):
     msg['From'] = 'donotreply'
     msg['To'] = config['Email']
 
-    server = smtplib.SMTP(config['Smtp'])
+    server = smtplib.SMTP(config['smtp'])
     server.ehlo_or_helo_if_needed()
     server.starttls()
-    server.login(config['SmtpUser'], config['SmtpPassword'])
+    server.login(config['smtpuser'], config['smtppassword'])
     server.send_message(msg)
     server.quit()
 
