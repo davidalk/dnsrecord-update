@@ -2,6 +2,8 @@ from smtplib import SMTP
 from email.mime.text import MIMEText
 import configparser
 import os
+import requests
+import json
 
 def main():
     pass
@@ -17,7 +19,7 @@ def send_error(ex, config):
     for arg in ex.args:
         body += arg + '\n'
     msg = MIMEText(body)
-    msg['Subject'] = 'DYNDNS Update Error'
+    msg['Subject'] = 'name.com Update Error'
     msg['From'] = 'donotreply'
     msg['To'] = config['email']
 
@@ -28,7 +30,31 @@ def send_error(ex, config):
     server.send_message(msg)
     server.quit()
 
-class InvalidLoginError(Exception):
+
+class NameComInterract:
+
+    def __init__(self, config):
+        self.config = config
+        self.session_token = None
+
+    def api_hello(self):
+        hello_url = self.config['apiurl'] + '/api/hello'
+        res = requests.get(hello_url)
+        return res.json()
+
+    def login(self):
+        login_url = self.config['apiurl'] + '/api/login'
+        payload = {'username': self.config['apiuser'], 'api_token': self.config['apitoken']}
+        res = requests.post(login_url, data=json.dumps(payload))
+        json_res = res.json()
+        if json_res['result']['code'] != 100:
+            raise NameComInterractionError('Login failed: ' + json_res['result']['message'])
+        self.session_token = json_res['session_token']
+        print('Login message: ' + json_res['result']['message'])
+        return json_res
+
+
+class NameComInterractionError(Exception):
     pass
 
 if __name__ == '__main__':
