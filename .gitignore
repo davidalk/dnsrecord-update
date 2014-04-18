@@ -1,4 +1,6 @@
 *.pyc
 __pycache__/
+.project
+.pydevproject
 *.log
 settings.cfg
