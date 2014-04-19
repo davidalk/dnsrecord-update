@@ -25,7 +25,7 @@ def update_dns_with_ip(config):
     dns_name = 'home.' + config['domain']
     current_home_record = next((record for record in dns_records if record['name'] == dns_name and record['type'] ==  'A'), None)
     return_value = current_home_record
-    if current_home_record != None:
+    if current_home_record is not None:
         if current_home_record['content'] != ip_add:
             print('Updating ip address to: ' + str(ip_add))
             nameint.delete_dns_record(current_home_record['record_id'])
