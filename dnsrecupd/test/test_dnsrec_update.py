@@ -59,7 +59,7 @@ class TestDnsRecUpdate(unittest.TestCase):
         print(domains_list)
         namecom_interact.logout()
 
-    def test_update_dns_with_ip(self):
+    def test_add_dns_with_ip(self):
         return_value = dnsrec_update.update_dns_with_ip(self.config)
         self.assertIsNotNone(return_value, 'update_dns_with_ip returns value')
         #Remove entry

@@ -22,7 +22,8 @@ def update_dns_with_ip(config):
                                'ttl': 300}
     nameint.login()
     dns_records = nameint.list_dns_records()
-    current_home_record = next((record for record in dns_records if record['name'] == 'home.alkanani.co.uk' and record['type'] ==  'A'), None)
+    dns_name = 'home.' + config['domain']
+    current_home_record = next((record for record in dns_records if record['name'] == dns_name and record['type'] ==  'A'), None)
     return_value = current_home_record
     if current_home_record != None:
         if current_home_record['content'] != ip_add:
