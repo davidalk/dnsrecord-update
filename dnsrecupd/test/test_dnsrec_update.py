@@ -54,7 +54,7 @@ class TestDnsRecUpdate(unittest.TestCase):
         namecom_interact = dnsrec_update.NameComInterract(self.config)
         namecom_interact.login()
         domains_list = namecom_interact.list_domains()
-        self.assertIsNotNone(domains_list['al-kanani.com'], 'domain is populated')
+        self.assertIsNotNone(domains_list[self.config['domain']], 'domain is populated')
         print('Domain list:')
         print(domains_list)
         namecom_interact.logout()
